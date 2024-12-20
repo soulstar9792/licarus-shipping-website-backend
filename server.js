@@ -14,9 +14,14 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://icarus-ships-621f0ba82758.herokuapp.com' // Replace with your front-end URL
+  origin: 'https://icarus-ships-621f0ba82758.herokuapp.com', // Your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  optionsSuccessStatus: 200,
 }));
-app.use(cors());
+
+app.options('*', cors()); // Handle preflight requests
+
 // DB Config
 const db = process.env.mongoURI;
 
