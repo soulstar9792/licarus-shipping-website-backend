@@ -13,8 +13,10 @@ const app = express();
 // Bodyparser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors({
+  origin: 'https://icarus-ships-621f0ba82758.herokuapp.com' // Replace with your front-end URL
+}));
 app.use(cors());
-
 // DB Config
 const db = process.env.mongoURI;
 
