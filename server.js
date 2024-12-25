@@ -28,8 +28,6 @@ mongoose
   .then(() => console.log("MongoDB successfully connected"))
   .catch((err) => console.log(err));
 
-
-
 // Routes
 app.use("/api/users", users);
 app.use("/api/admin", admin);
@@ -47,4 +45,4 @@ if (process.env.NODE_ENV === "production") {
 
 // const port = process.env.PORT || 5000;
 
-app.listen(5000, () => console.log(`Server up and running on port ${port} !`));
+app.listen(5000, () => console.log(`Server up and running on port ${5000} !`));
