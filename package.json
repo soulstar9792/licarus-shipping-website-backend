@@ -1,48 +1,24 @@
 {
-  "name": "mern-jwt-auth",
-  "version": "2.0.0",
-  "description": "Minimal full-stack MERN app with authentication using passport and JWTs.",
+  "name": "backend",
+  "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
-    "start": "node server.js",
-    "server": "nodemon server.js",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "npm i && npm run client-install && npm run build --prefix client",
-    "prod": "NODE_ENV=production npm start",
-    "build-prod": "npm run build && npm run prod"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vishalnagda1/mern-jwt-auth.git"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
   },
   "keywords": [
-    "mern-auth",
-    "mern-jwt-auth",
-    "mern-auth-jwt"
+    "Icarusship"
   ],
-  "author": "Vishal Nagda",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/vishalnagda1/mern-jwt-auth/issues"
-  },
-  "homepage": "https://github.com/vishalnagda1/mern-jwt-auth#readme",
+  "author": ".",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
-    "concurrently": "^5.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.17.1",
-    "is-empty": "^1.2.0",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^5.13.3",
-    "passport": "^0.6.0",
-    "passport-jwt": "^4.0.0",
-    "validator": "^13.7.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.3"
+    "mongoose": "^8.9.2",
+    "nodemon": "^3.1.9"
   }
 }
