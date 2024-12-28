@@ -15,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/api/auth', authRouter);
+
 console.log("--------------");
 console.log("--------------");
 console.log("HELLO WORLD");
