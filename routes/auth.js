@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
         if (user.activation === 'block') {
             return res.status(400).json({ message: 'Account is blocked' });
         }
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.secret_key);
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.SECRET_KEY);
         res.json({ token, user });
     } catch (error) {
         console.error("Error during login:", error); // Log the error details
