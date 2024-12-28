@@ -1,0 +1,7 @@
+{
+    "workbench.colorCustomizations": {
+        "terminal.background": "#333333", 
+        "terminal.foreground": "#000000" 
+    },
+    "disable-hardware-acceleration": true
+}
