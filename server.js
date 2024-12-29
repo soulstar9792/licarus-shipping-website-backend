@@ -9,12 +9,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const authRouter = require('./routes/auth');
+const OrderRouter = require('./routes/OrderLabel');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/api/auth', authRouter);
+app.use('/api/orders', OrderRouter); 
 
 console.log("--------------");
 console.log("--------------");
