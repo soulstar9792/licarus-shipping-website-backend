@@ -6,7 +6,7 @@ const PDFDocument = require('pdfkit');
 const path = require('path');
 const fs = require('fs');
 const sizeOf = require('image-size');
-// const BulkOrder = require('./models/BulkOrder'); // Import your BulkOrder model
+const BulkOrder = require('../models/BulkOrders');
 
 // Sample GET endpoint to retrieve orders
 router.get('/', async (req, res) => {
@@ -40,6 +40,7 @@ router.post('/', async (req, res) => {
 
 
 router.post('/bulk', async (req, res) => {
+    let courier;
     const ordersArray = req.body; // Assuming you're passing an array of orders
     console.log(ordersArray);
     const bulkOrderData = {
@@ -49,7 +50,7 @@ router.post('/bulk', async (req, res) => {
     try {
         // Iterate over each order in the array
         for (const orderData of ordersArray) {
-            let courier = orderData.courier;
+            courier = orderData.courier;
             const shipment = {
                 "api_key": process.env.API_KEY,
                 "service_name": orderData.service_name,
@@ -108,6 +109,13 @@ router.post('/bulk', async (req, res) => {
 
         const fileName = `bulk-orders${formattedTime}.pdf`;
 
+        const bulkOrder = new BulkOrder({
+            courier: courier,
+            bulkOrderData: ordersArray,
+            __filename: fileName
+        });
+        const savedBulkOrder = await bulkOrder.save();
+
         res.status(200).json({
             message: 'Bulk orders created successfully',
             fileName : fileName
@@ -120,6 +128,25 @@ router.post('/bulk', async (req, res) => {
             error: error.message
         });
     }
+});
+
+
+router.get('/download/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "../uploads/", filename);
+    console.log(filePath);
+    
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+        // Set the headers to force download
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Type', 'application/pdf');
+        // Send the file for download
+        res.sendFile(filePath);
+    });
 });
 
 module.exports = router;
