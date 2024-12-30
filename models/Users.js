@@ -16,7 +16,11 @@ const userSchema = new mongoose.Schema({
     },
     user_role: {
         type: String,
-        default: 'admin' // Default role is admin
+        default: 'user' // Default role is admin
+    },
+    balance: {
+        type: Number,
+        default: 0  // Default balance is 0
     },
     activation: {
         type: String,
