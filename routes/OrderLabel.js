@@ -10,7 +10,13 @@ const BulkOrder = require('../models/BulkOrders');
 
 // Sample GET endpoint to retrieve orders
 router.get('/', async (req, res) => {
-    res.json({ message: 'Get all orders' });
+    try {
+        const orders = await Order.find(); // This retrieves all orders from the database
+        res.status(200).json({ message: 'Orders retrieved successfully', orders }); // Respond with the list of orders
+    } catch (error) {
+        console.error('Error retrieving orders:', error);
+        res.status(500).json({ message: 'Error retrieving orders', error: error.message });
+    }
 });
 
 router.post('/', async (req, res) => {
@@ -25,14 +31,16 @@ router.post('/', async (req, res) => {
         "package": req.body.package,
     }
     const response = await axios.post('https://api.labelexpress.io/v1/' + req.body.courier + '/image/create', shipment);
-
+    console.log(response.data.data);
     const order = new Order({
+        userId: req.body.user_id,
         courier: req.body.courier,
         service_name: req.body.service_name,
+        image: response.data.data.base64_encoded_image,
+        tracking_number: response.data.data.tracking_number,
         sender: req.body.sender,
         receiver: req.body.receiver,
         package: req.body.package,
-        label: response.data.data
     });
     const savedOrder = await order.save();
     res.json(response.data, { message: 'Order created successfully' }, 200);

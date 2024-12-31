@@ -106,6 +106,26 @@ router.post('/users/activation/:id', auth, async (req, res) => {
     }
 });
 
+router.post('/users/balance/:id', auth, async (req, res) => {
+    const { balance } = req.body; // Accept balance in the body
+    console.log(req.body);
+
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.balance = Number(balance); // Update balance
+        await user.save();
+
+        res.status(200).json({ message: 'User balance updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating user balance', error: error.message });
+    }
+}); 
+
 // Delete user
 router.delete('/users/:id', auth, async (req, res) => {
     try {
