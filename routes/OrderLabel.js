@@ -9,10 +9,16 @@ const sizeOf = require('image-size');
 const BulkOrder = require('../models/BulkOrders');
 
 // Sample GET endpoint to retrieve orders
-router.get('/', async (req, res) => {
+router.get('/:userId', async (req, res) => {
+    const { userId } = req.params; // Extract userId from the request body
+    console.log(userId);
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }
+
     try {
-        const orders = await Order.find(); // This retrieves all orders from the database
-        res.status(200).json({ message: 'Orders retrieved successfully', orders }); // Respond with the list of orders
+        const orders = await Order.find({ userId }); // Filter orders by userId             
+        res.status(200).json({ message: 'Orders retrieved successfully', orders });
     } catch (error) {
         console.error('Error retrieving orders:', error);
         res.status(500).json({ message: 'Error retrieving orders', error: error.message });
@@ -49,14 +55,13 @@ router.post('/', async (req, res) => {
 
 router.post('/bulk', async (req, res) => {
     let courier;
-    const ordersArray = req.body; // Assuming you're passing an array of orders
+    const ordersArray = req.body;
     console.log(ordersArray);
     const bulkOrderData = {
         orders: []
     };
 
     try {
-        // Iterate over each order in the array
         for (const orderData of ordersArray) {
             courier = orderData.courier;
             const shipment = {
@@ -70,7 +75,6 @@ router.post('/bulk', async (req, res) => {
 
             const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
 
-            // Create an order object to store in the bulk order
             const order = {
                 sender: orderData.sender,
                 receiver: orderData.receiver,
@@ -85,7 +89,7 @@ router.post('/bulk', async (req, res) => {
         const currentTime = new Date();
 
         // Retrieve the date and time components
-        const year = currentTime.getFullYear(); // Get the full year
+        const year = currentTime.getFullYear();
         const month = String(currentTime.getMonth() + 1).padStart(2, '0');
         const day = String(currentTime.getDate()).padStart(2, '0');
         const hours = String(currentTime.getHours()).padStart(2, '0');
@@ -126,7 +130,7 @@ router.post('/bulk', async (req, res) => {
 
         res.status(200).json({
             message: 'Bulk orders created successfully',
-            fileName : fileName
+            fileName: fileName
             // data: savedBulkOrder,
         });
     } catch (error) {
@@ -143,7 +147,7 @@ router.get('/download/:filename', (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(__dirname, "../uploads/", filename);
     console.log(filePath);
-    
+
     // Check if the file exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
