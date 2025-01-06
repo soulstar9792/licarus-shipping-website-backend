@@ -26,34 +26,69 @@ router.get('/:userId', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    console.log(req.body);
+    try {
+        console.log(req.body);
 
-    const shipment = {
-        "api_key": process.env.API_KEY,
-        "service_name": req.body.service_name,
-        "manifested": false,
-        "sender": req.body.sender,
-        "receiver": req.body.receiver,
-        "package": req.body.package,
+        const shipment = {
+            "api_key": process.env.API_KEY,
+            "service_name": req.body.service_name,
+            "manifested": false,
+            "sender": req.body.sender,
+            "receiver": req.body.receiver,
+            "package": req.body.package,
+        };
+
+        const response = await axios.post('https://api.labelexpress.io/v1/' + req.body.courier + '/image/create', shipment);
+
+        console.log(response.data.data);
+
+        const order = new Order({
+            userId: req.body.user_id,
+            courier: req.body.courier,
+            service_name: req.body.service_name,
+            image: response.data.data.base64_encoded_image,
+            tracking_number: response.data.data.tracking_number,
+            sender: req.body.sender,
+            receiver: req.body.receiver,
+            package: req.body.package,
+        });
+
+        const savedOrder = await order.save();
+
+        return res.status(200).json({
+            message: 'Order created successfully',
+            data: savedOrder // You might want to send the saved order back
+        });
+    } catch (error) {
+        console.error('Error creating order:', error);
+
+        // Determine the error type and respond accordingly
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            return res.status(error.response.status).json({
+                message: error.response.data.message || 'Error from Label Express API',
+                error: error.response.data
+            });
+        } else if (error.request) {
+            // The request was made but no response was received
+            return res.status(500).json({
+                message: 'No response received from Label Express API',
+                error: error.request
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            return res.status(500).json({
+                message: 'Error creating order',
+                error: error.message
+            });
+        }
     }
-    const response = await axios.post('https://api.labelexpress.io/v1/' + req.body.courier + '/image/create', shipment);
-    console.log(response.data.data);
-    const order = new Order({
-        userId: req.body.user_id,
-        courier: req.body.courier,
-        service_name: req.body.service_name,
-        image: response.data.data.base64_encoded_image,
-        tracking_number: response.data.data.tracking_number,
-        sender: req.body.sender,
-        receiver: req.body.receiver,
-        package: req.body.package,
-    });
-    const savedOrder = await order.save();
-    res.json(response.data, { message: 'Order created successfully' }, 200);
 });
 
 
-router.post('/bulk', async (req, res) => {
+router.post('/bulk/:userId', async (req, res) => {
+    const { userId } = req.params; 
+    console.log(userId);
     let courier;
     const ordersArray = req.body;
     console.log(ordersArray);
@@ -122,6 +157,7 @@ router.post('/bulk', async (req, res) => {
         const fileName = `bulk-orders${formattedTime}.pdf`;
 
         const bulkOrder = new BulkOrder({
+            userId: userId,
             courier: courier,
             bulkOrderData: ordersArray,
             __filename: fileName
@@ -141,6 +177,23 @@ router.post('/bulk', async (req, res) => {
         });
     }
 });
+
+
+router.get('/bulk/:userId', async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }   
+    try {
+        const bulkOrders = await BulkOrder.find({ userId });
+        console.log(bulkOrders);
+        res.status(200).json(bulkOrders);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 
 router.get('/download/:filename', (req, res) => {
