@@ -7,6 +7,8 @@ const path = require('path');
 const fs = require('fs');
 const sizeOf = require('image-size');
 const BulkOrder = require('../models/BulkOrders');
+const LabelServiceTypes = require('../models/LabelServiceTypes');
+const Users = require('../models/Users')
 
 // Sample GET endpoint to retrieve orders
 router.get('/:userId', async (req, res) => {
@@ -17,7 +19,7 @@ router.get('/:userId', async (req, res) => {
     }
 
     try {
-        const orders = await Order.find({ userId }); // Filter orders by userId             
+        const orders = await Order.find({ userId }); // Filter orders by userId        
         res.status(200).json({ message: 'Orders retrieved successfully', orders });
     } catch (error) {
         console.error('Error retrieving orders:', error);
@@ -27,8 +29,6 @@ router.get('/:userId', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        console.log(req.body);
-
         const shipment = {
             "api_key": process.env.API_KEY,
             "service_name": req.body.service_name,
@@ -39,8 +39,6 @@ router.post('/', async (req, res) => {
         };
 
         const response = await axios.post('https://api.labelexpress.io/v1/' + req.body.courier + '/image/create', shipment);
-
-        console.log(response.data.data);
 
         const order = new Order({
             userId: req.body.user_id,
@@ -54,6 +52,15 @@ router.post('/', async (req, res) => {
         });
 
         const savedOrder = await order.save();
+        const service_type = req.body.service_name;
+        const service = await LabelServiceTypes.findOne({ courier: req.body.courier });
+        const service_cost = service.services[service_type].standard_cost;
+        console.log(service_cost);
+        
+        const user = await Users.findById(req.body.user_id);
+
+        user.balance = Number(user.balance) - Number(service_cost);
+        await user.save();
 
         return res.status(200).json({
             message: 'Order created successfully',
@@ -64,7 +71,6 @@ router.post('/', async (req, res) => {
 
         // Determine the error type and respond accordingly
         if (error.response) {
-            // The request was made and the server responded with a status code
             return res.status(error.response.status).json({
                 message: error.response.data.message || 'Error from Label Express API',
                 error: error.response.data

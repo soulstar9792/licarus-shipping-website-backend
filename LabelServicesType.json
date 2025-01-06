@@ -1,0 +1,326 @@
+    [
+        {
+            "client_role": "sapphire",
+            "courier": "UPS",
+            "services": {
+                "UPS 2nd Day Air A.M., Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air A.M., Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air A.M., United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, Saturday Delivery, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, Saturday Delivery, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, Saturday Delivery, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 2nd Day Air, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 3 Day Select, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 3 Day Select, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS 3 Day Select, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Economy, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Expedited, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Expedited, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Expedited, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Expedited, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), Saturday Delivery, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), Saturday Delivery, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), Saturday Delivery, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express (NA1), Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express Early, Adult Signature Required, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express Early, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express Early, Saturday Delivery, Adult Signature Required, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express Early, Saturday Delivery, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express Early, Saturday Delivery, Signature Required, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express Plus, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express Plus, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express Plus, Saturday Delivery, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express Plus, Saturday Delivery, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express Plus, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Express, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Saturday Delivery, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Saturday Delivery, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Saturday Delivery, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Express, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Ground, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Ground, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Ground, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Early, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Early, Saturday Delivery, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Early, Saturday Delivery, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Early, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Saver, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Saver, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air Saver, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, Saturday Delivery, Adult Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, Saturday Delivery, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, Saturday Delivery, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, Signature Required, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Next Day Air, United States": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Saver, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Saver, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Saver, Saturday Delivery, Adult Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Saver, Saturday Delivery, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Saver, Signature Required, International": {
+                    "manifested_cost": 100,
+                    "standard_cost": 90
+                },
+                "UPS Standard, Adult Signature Required, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Standard, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                },
+                "UPS Standard, Signature Required, Canada": {
+                    "manifested_cost": 0.9,
+                    "standard_cost": 0.5
+                }
+            }
+        },
+        {
+            "client_role": "sapphire",
+            "courier": "USPS",
+            "services": {
+                "USPS Ground Advantage, Adult Signature Required, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Ground Advantage, Adult Signature Required, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Ground Advantage, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Ground Advantage, Signature Required, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Ground Advantage, Signature Required, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Ground Advantage, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail Express, Adult Signature Required, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail Express, Adult Signature Required, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail Express, Signature Required, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail Express, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail, Adult Signature Required, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail, Signature Required, Restricted Delivery, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail, Signature Required, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                },
+                "USPS Priority Mail, United States": {
+                    "manifested_cost": 0,
+                    "standard_cost": 0.1
+                }
+            }
+        }
+    ]
