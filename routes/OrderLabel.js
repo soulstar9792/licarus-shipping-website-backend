@@ -137,7 +137,7 @@ router.post('/bulk/:userId', async (req, res) => {
                 "package": orderData.package,
             };
 
-            // const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
+            const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
 
             const order = {
                 sender: orderData.sender,
