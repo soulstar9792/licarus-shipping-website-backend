@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const LabelServiceTypes = require('../LabelServicesType.json');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -24,7 +25,11 @@ const userSchema = new mongoose.Schema({
     },
     activation: {
         type: String,
-        default: 'allow' // Default activation is allow
+        default: 'block' // Default activation is allow
+    },
+    services : {
+        type: Array,
+        default: []
     }
 });
 

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/Users');
 const router = express.Router();
+const LabelServicesType = require('../LabelServicesType.json')
 // const dotenv = require('dotenv');
 // dotenv.config();
 
@@ -19,7 +20,8 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, email, password: hashedPassword });
+        const newUser = new User({ name, email, password: hashedPassword, services: LabelServicesType });
+        console.log(LabelServicesType)
         await newUser.save();
 
         res.status(201).json({

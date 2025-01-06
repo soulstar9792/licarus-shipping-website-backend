@@ -8,7 +8,7 @@ const fs = require('fs');
 const sizeOf = require('image-size');
 const BulkOrder = require('../models/BulkOrders');
 const LabelServiceTypes = require('../models/LabelServiceTypes');
-const Users = require('../models/Users')
+const User = require('../models/Users');
 
 // Sample GET endpoint to retrieve orders
 router.get('/:userId', async (req, res) => {
@@ -38,6 +38,22 @@ router.post('/', async (req, res) => {
             "package": req.body.package,
         };
 
+        const service_type = req.body.service_name;
+        const services = await User.findById(req.body.user_id);
+        var service_cost = 0;
+        if (req.body.courier == "UPS") {
+            service_cost = services.services[0].services[service_type].standard_cost;
+        }
+        else {
+            service_cost = services.services[1].services[service_type].standard_cost;
+        }
+
+        const user = await User.findById(req.body.user_id);
+
+        user.balance = Number(user.balance) - Number(service_cost);
+        await user.save();
+
+
         const response = await axios.post('https://api.labelexpress.io/v1/' + req.body.courier + '/image/create', shipment);
 
         const order = new Order({
@@ -52,19 +68,10 @@ router.post('/', async (req, res) => {
         });
 
         const savedOrder = await order.save();
-        const service_type = req.body.service_name;
-        const service = await LabelServiceTypes.findOne({ courier: req.body.courier });
-        const service_cost = service.services[service_type].standard_cost;
-        console.log(service_cost);
-        
-        const user = await Users.findById(req.body.user_id);
-
-        user.balance = Number(user.balance) - Number(service_cost);
-        await user.save();
 
         return res.status(200).json({
             message: 'Order created successfully',
-            data: savedOrder // You might want to send the saved order back
+            data: savedOrder
         });
     } catch (error) {
         console.error('Error creating order:', error);
@@ -93,7 +100,7 @@ router.post('/', async (req, res) => {
 
 
 router.post('/bulk/:userId', async (req, res) => {
-    const { userId } = req.params; 
+    const { userId } = req.params;
     console.log(userId);
     let courier;
     const ordersArray = req.body;
@@ -105,6 +112,22 @@ router.post('/bulk/:userId', async (req, res) => {
     try {
         for (const orderData of ordersArray) {
             courier = orderData.courier;
+
+            const service_type = orderData.service_name;
+            const services = await User.findById(userId);
+            var service_cost = 0;
+            if (courier == "UPS") {
+                service_cost = services.services[0].services[service_type].standard_cost;
+            }
+            else {
+                service_cost = services.services[1].services[service_type].standard_cost;
+            }
+
+            const user = await User.findById(userId);
+            user.balance = Number(user.balance) - Number(service_cost);
+            console.log(user.balance, service_cost);
+            await user.save();
+            
             const shipment = {
                 "api_key": process.env.API_KEY,
                 "service_name": orderData.service_name,
@@ -114,7 +137,7 @@ router.post('/bulk/:userId', async (req, res) => {
                 "package": orderData.package,
             };
 
-            const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
+            // const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
 
             const order = {
                 sender: orderData.sender,
@@ -189,7 +212,7 @@ router.get('/bulk/:userId', async (req, res) => {
     const { userId } = req.params;
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required' });
-    }   
+    }
     try {
         const bulkOrders = await BulkOrder.find({ userId });
         console.log(bulkOrders);
