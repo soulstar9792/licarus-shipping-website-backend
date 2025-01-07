@@ -50,6 +50,12 @@ router.post('/', async (req, res) => {
 
         const user = await User.findById(req.body.user_id);
 
+        // Check if user has sufficient balance to process the order 
+        if(user.balance<service_cost){
+            //Otherwise return insufficient balance
+            return res.status(400).json({message: "Insufficent Balance "});
+        }
+
         user.balance = Number(user.balance) - Number(service_cost);
         await user.save();
 
@@ -124,6 +130,11 @@ router.post('/bulk/:userId', async (req, res) => {
             }
 
             const user = await User.findById(userId);
+             // Check if user balance is sufficient for the current order and skip if there is not sufficient balance 
+             if(user.balance<service_cost){
+                console.log(` Insufficient Balance ${userId} balance skipped .`);
+                continue;
+            }
             user.balance = Number(user.balance) - Number(service_cost);
             console.log(user.balance, service_cost);
             await user.save();
