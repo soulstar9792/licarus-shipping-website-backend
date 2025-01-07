@@ -19,11 +19,13 @@ router.get('/:userId', async (req, res) => {
     }
 
     try {
-        const orders = await Order.find({ userId }); // Filter orders by userId        
-        res.status(200).json({ message: 'Orders retrieved successfully', orders });
+        const orders = await Order.find({ userId }); // Filter orders by userId 
+        console.log(orders);       
+        return res.status(200).json({ message: 'Orders retrieved successfully', orders });
+
     } catch (error) {
         console.error('Error retrieving orders:', error);
-        res.status(500).json({ message: 'Error retrieving orders', error: error.message });
+        return res.status(500).json({ message: 'Error retrieving orders', error: error.message });
     }
 });
 
@@ -57,6 +59,7 @@ router.post('/', async (req, res) => {
         }
 
         user.balance = Number(user.balance) - Number(service_cost);
+        user.totalSpent += Number(service_cost);
         await user.save();
 
 
@@ -136,6 +139,7 @@ router.post('/bulk/:userId', async (req, res) => {
                 continue;
             }
             user.balance = Number(user.balance) - Number(service_cost);
+            user.totalSpent += Number(service_cost);
             console.log(user.balance, service_cost);
             await user.save();
             
