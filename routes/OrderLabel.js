@@ -27,6 +27,54 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
+router.post('/service-price/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const { service, costType, value } = req.body;
+    const val = Number(value); 
+    if (!service || !costType || val === undefined) {
+        return res.status(400).json({ message: 'Invalid input: service, costType, and val are required' });
+    }
+
+    try {
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Locate the correct service object (UPS or USPS) and update the cost
+        let serviceUpdated = false;
+        user.services = user.services.map((serviceObj) => {
+            if (serviceObj.services && serviceObj.services[service]) {
+                serviceObj.services[service][costType] = val; // Update cost
+                serviceUpdated = true;
+            }
+            return serviceObj;
+        });
+        if (!serviceUpdated) {
+            return res.status(400).json({ message: 'Service not found for this user' });
+        }
+
+        // Save updated user
+        await user.save();
+        console.log("Old User ", user.services[0]); 
+        const newUser = await User.findByIdAndUpdate(user.id,
+            {$set: {services: user.services}},
+            {new: true}
+        );
+        console.log("new User", newUser.services[0]); 
+        return res.status(200).json({
+            message: 'Service cost updated successfully',
+            services: user.services,
+        });
+    } catch (error) {
+        console.error('Error updating service price:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+
 router.post('/', async (req, res) => {
     try {
         const shipment = {
@@ -103,6 +151,7 @@ router.post('/', async (req, res) => {
         }
     }
 });
+
 
 
 router.post('/bulk/:userId', async (req, res) => {
