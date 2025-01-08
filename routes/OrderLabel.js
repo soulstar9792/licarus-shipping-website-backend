@@ -104,7 +104,7 @@ router.post('/', async (req, res) => {
         // Check if user has sufficient balance to process the order 
         if(user.balance<service_cost){
             //Otherwise return insufficient balance
-            return res.status(400).json({message: "Insufficent Balance " , service_cost: service_cost});
+            return res.status(400).json({message: "Insufficent Balance " });
         }
 
         user.balance = Number(user.balance) - Number(service_cost);
