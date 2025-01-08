@@ -25,11 +25,19 @@ const userSchema = new mongoose.Schema({
     },
     activation: {
         type: String,
-        default: 'block' // Default activation is allow
+        default: 'allow' // Default activation is allow
     },
     services : {
         type: Array,
         default: []
+    },
+    totalSpent:{
+        type:Number,
+        default: 0
+    },
+    totalDeposit:{
+        type:Number,
+        default:0
     }
 });
 
