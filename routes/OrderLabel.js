@@ -77,6 +77,7 @@ router.post('/service-price/:userId', async (req, res) => {
 });
 
 
+
 router.post('/', async (req, res) => {
     try {
         const shipment = {
@@ -103,7 +104,7 @@ router.post('/', async (req, res) => {
         // Check if user has sufficient balance to process the order 
         if(user.balance<service_cost){
             //Otherwise return insufficient balance
-            return res.status(400).json({message: "Insufficent Balance "});
+            return res.status(400).json({message: "Insufficent Balance " , service_cost: service_cost});
         }
 
         user.balance = Number(user.balance) - Number(service_cost);
@@ -128,7 +129,8 @@ router.post('/', async (req, res) => {
 
         return res.status(200).json({
             message: 'Order created successfully',
-            data: savedOrder
+            data: savedOrder,
+            service_cost: service_cost
         });
     } catch (error) {
         console.error('Error creating order:', error);
@@ -155,6 +157,66 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.post('/price/single',async (req,res)=>{
+    const {userId, courier,service} = req.body; 
+    try {
+        const user = await User.findById(userId); 
+        if(!user){
+            return res.status(400).json({message: "User not Found"}); 
+        }
+        var price = 0 ; 
+        if(service){
+        if (courier == "UPS") {
+            price = user.services[0].services[service].standard_cost;
+        }
+        else {
+            price = user.services[1].services[service].standard_cost;
+        }
+        return res.status(200).json({price}); 
+    }else{
+        return res.status(400).json({message:"No Service Provided"}); 
+    }
+    } catch (error) {
+     console.log("Error Occured: ", error);    
+    }
+})
+
+router.post('/price/bulk', async (req, res) => {
+    const {userId }= req.body;
+    const ordersArray = req.body.shipments;
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        let totalPrice = 0;
+
+        // Iterate over each order in the bulk array and calculate the total price
+        for (const orderData of ordersArray) {
+            const courier = orderData.courier;
+            const service_type = orderData.service_name;
+            let service_cost = 0;
+
+            if (courier === "UPS") {
+                service_cost = user.services[0].services[service_type].standard_cost;
+            } else {
+                service_cost = user.services[1].services[service_type].standard_cost;
+            }
+
+            totalPrice += service_cost; // Add each service cost to the total price
+        }
+        console.log("Total Price: ", totalPrice); 
+        return res.status(200).json({
+            totalPrice // Return the calculated total price
+        });
+
+    } catch (error) {
+        console.log("Error occurred:", error);
+        res.status(500).json({ message: "Error calculating bulk order price", error: error.message });
+    }
+   
+});
 
 
 router.post('/bulk/:userId', async (req, res) => {
@@ -186,7 +248,7 @@ router.post('/bulk/:userId', async (req, res) => {
              if(user.balance<service_cost){
                 console.log(` Insufficient Balance ${userId} balance skipped .`);
                 continue;
-            }
+            }   
             user.balance = Number(user.balance) - Number(service_cost);
             user.totalSpent += Number(service_cost);
             console.log(user.balance, service_cost);
