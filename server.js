@@ -13,7 +13,15 @@ const OrderRouter = require('./routes/OrderLabel');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+
+const corsOptions = {
+  origin:["https://icarus-ships.vercel.app"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}
+app.use(cors(corsOptions));
+
+
 
 app.use('/api/auth', authRouter);
 app.use('/api/orders', OrderRouter); 
