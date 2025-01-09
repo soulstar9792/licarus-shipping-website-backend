@@ -153,7 +153,6 @@ router.post('/save-address/:userId', async(req,res)=>{
         try {
             const {userId} = req.params; 
             const newAddress = req.body.formData;
-            console.log("New adress",newAddress); 
             if(!newAddress){
                 return res.status(400).json({message:"Please Provide a address"}); 
             } 
@@ -178,20 +177,17 @@ router.post('/save-address/:userId', async(req,res)=>{
 router.post('/delete-address/:userId', async (req, res) => {
     try {
       const { userId } = req.params;
-      console.log(userId); 
-      console.log("the body " , req.body); 
-      const addressToDelete = req.body.address;  
-        console.log(addressToDelete); 
-      if (!addressToDelete) {
+      const addressToDeleteId = req.body.id;  
+          if (!addressToDeleteId) {
         return res.status(400).json({ message: "Please provide the address to delete" });
       }
-  
+      
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { $pull: { savedAddresses: addressToDelete } },  
+        { $pull: { savedAddresss: { _id: addressToDeleteId } } },
         { new: true }
       );
-  
+      console.log("updated User " ,updatedUser);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
