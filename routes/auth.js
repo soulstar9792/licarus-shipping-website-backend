@@ -148,4 +148,81 @@ router.get('/verify', auth, async (req, res) => {
     res.json({ user: user });
 });
 
+router.post('/save-address/:userId', async(req,res)=>{
+
+        try {
+            const {userId} = req.params; 
+            const newAddress = req.body.formData;
+            console.log("New adress",newAddress); 
+            if(!newAddress){
+                return res.status(400).json({message:"Please Provide a address"}); 
+            } 
+            const Updateduser = await User.findByIdAndUpdate(userId,
+                {$push: {savedAddresss:newAddress}},
+                {new:true, runValidators: true}
+            );
+            console.log(Updateduser);
+            if(!Updateduser){
+                return res.status(404).json({message: "User not Found"}); 
+            } 
+            return res.status(200).json({
+                message: "Addres Added Succesfully ", 
+                savedAddresss: Updateduser.savedAddresss
+            })
+        } catch (error) {
+            console.error('Error adding address:', error);
+            res.status(500).json({ message: 'Error adding address', error });
+        }
+})
+
+router.post('/delete-address/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      console.log(userId); 
+      console.log("the body " , req.body); 
+      const addressToDelete = req.body.address;  
+        console.log(addressToDelete); 
+      if (!addressToDelete) {
+        return res.status(400).json({ message: "Please provide the address to delete" });
+      }
+  
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { savedAddresses: addressToDelete } },  
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      return res.status(200).json({
+        message: "Address deleted successfully",
+        savedAddresses: updatedUser.savedAddresses  
+      });
+  
+    } catch (error) {
+      console.log("An error occurred:", error);
+      res.status(500).json({ message: "An error occurred", error });
+    }
+  });
+  
+
+router.get('/get-address/:userId',async(req,res)=>{
+    try {
+        const {userId} = req.params; 
+        const foundUser =await User.findById(userId); 
+        if(!foundUser){
+            return res.status(404).json({message:"User not found"}); 
+        }
+        const savedAddress = foundUser.savedAddresss; 
+        if(!savedAddress){
+            return res.status(404).json({message:"No Saved address"}); 
+        }
+        return res.status(200).json({message:"Address found ", savedAddress: savedAddress}); 
+    } catch (error) {
+        
+    }
+})
+
 module.exports = router;
