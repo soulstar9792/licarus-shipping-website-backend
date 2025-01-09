@@ -197,8 +197,7 @@ router.post('/price/bulk', async (req, res) => {
             const courier = orderData.courier;
             const service_type = orderData.service_name;
             let service_cost = 0;
-
-            if (courier === "UPS") {
+            if (courier === "UPS" && service_type.split(' ')[0]==="UPS") {
                 service_cost = user.services[0].services[service_type].standard_cost;
             } else {
                 service_cost = user.services[1].services[service_type].standard_cost;
@@ -236,7 +235,7 @@ router.post('/bulk/:userId', async (req, res) => {
             const service_type = orderData.service_name;
             const services = await User.findById(userId);
             var service_cost = 0;
-            if (courier == "UPS") {
+            if (courier == "UPS" && service_type.split(' ')[0]=="UPS") {
                 service_cost = services.services[0].services[service_type].standard_cost;
             }
             else {
