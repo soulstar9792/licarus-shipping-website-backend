@@ -48,6 +48,33 @@ const savedAddressSchema = new mongoose.Schema({
     },
 });
 
+const SKUSchema = new mongoose.Schema({
+    sku: {
+        type:String,
+        require: true
+    }, 
+    maxQty: {
+        type:Number, 
+        require:true
+    },
+    weight: {
+        type:Number, 
+        require:true
+    },
+    length: {
+        type:Number, 
+        require:true
+    },
+    width: {
+        type:Number, 
+        require:true
+    },
+    height: {
+        type:Number, 
+        require:true
+    }    
+})
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -86,7 +113,8 @@ const userSchema = new mongoose.Schema({
         type:Number,
         default:0
     },
-    savedAddresss: [savedAddressSchema]
+    savedAddresss: [savedAddressSchema],
+    UserSKU :  [SKUSchema]
 });
 
 const User = mongoose.model('User', userSchema);

@@ -13,14 +13,12 @@ const User = require('../models/Users');
 // Sample GET endpoint to retrieve orders
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params; // Extract userId from the request body
-    console.log(userId);
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required' });
     }
 
     try {
         const orders = await Order.find({ userId }); // Filter orders by userId 
-        console.log(orders);       
         return res.status(200).json({ message: 'Orders retrieved successfully', orders });
 
     } catch (error) {
@@ -38,14 +36,12 @@ router.post('/service-price/:userId', async (req, res) => {
     }
 
     try {
-        // Find the user by userId
         const user = await User.findById(userId);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Locate the correct service object (UPS or USPS) and update the cost
         let serviceUpdated = false;
         user.services = user.services.map((serviceObj) => {
             if (serviceObj.services && serviceObj.services[service]) {
@@ -58,14 +54,11 @@ router.post('/service-price/:userId', async (req, res) => {
             return res.status(400).json({ message: 'Service not found for this user' });
         }
 
-        // Save updated user
         await user.save();
-        console.log("Old User ", user.services[0]); 
         const newUser = await User.findByIdAndUpdate(user.id,
             {$set: {services: user.services}},
             {new: true}
         );
-        console.log("new User", newUser.services[0]); 
         return res.status(200).json({
             message: 'Service cost updated successfully',
             services: user.services,
@@ -220,10 +213,9 @@ router.post('/price/bulk', async (req, res) => {
 
 router.post('/bulk/:userId', async (req, res) => {
     const { userId } = req.params;
-    console.log(userId);
     let courier;
     const ordersArray = req.body;
-    console.log(ordersArray);
+    console.log("Data form front-edn" , ordersArray);
     const bulkOrderData = {
         orders: []
     };
@@ -250,7 +242,6 @@ router.post('/bulk/:userId', async (req, res) => {
             }   
             user.balance = Number(user.balance) - Number(service_cost);
             user.totalSpent += Number(service_cost);
-            console.log(user.balance, service_cost);
             await user.save();
             
             const shipment = {
@@ -298,7 +289,6 @@ router.post('/bulk/:userId', async (req, res) => {
                 // Get image dimensions
                 const dimensions = sizeOf(imgBuffer);
                 const { width, height } = dimensions;
-                console.log(width, height);
                 // Set the page size to the dimensions of the image
                 pdfDoc.addPage({ size: [width, height] })
                     .image(imgBuffer, 0, 0, { width, height })
@@ -340,7 +330,6 @@ router.get('/bulk/:userId', async (req, res) => {
     }
     try {
         const bulkOrders = await BulkOrder.find({ userId });
-        console.log(bulkOrders);
         res.status(200).json(bulkOrders);
     } catch (error) {
         console.log(error);
