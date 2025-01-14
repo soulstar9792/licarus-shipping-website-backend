@@ -13,14 +13,14 @@ const { createObjectCsvWriter } = require('csv-writer');
 
 
 // Sample GET endpoint to retrieve orders
-router.get('/:userId', async (req, res) => {
-    const { userId } = req.params; // Extract userId from the request body
+router.get('/get-orders/:userId', async (req, res) => {
+    const { userId } = req.params; 
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required' });
     }
 
     try {
-        const orders = await Order.find({ userId }); // Filter orders by userId 
+        const orders = await Order.find({ userId });  
         return res.status(200).json({ message: 'Orders retrieved successfully', orders });
 
     } catch (error) {
@@ -194,7 +194,7 @@ router.post('/price/bulk', async (req, res) => {
             const courier = orderData.courier;
             const service_type = orderData.service_name;
             let service_cost = 0;
-            if (courier === "UPS" && service_type.split(' ')[0]==="UPS") {
+            if (courier === "UPS" && service_type?.split(' ')[0]==="UPS") {
                 service_cost = user.services[0].services[service_type].standard_cost;
             } else {
                 service_cost = user.services[1].services[service_type].standard_cost;
@@ -231,13 +231,13 @@ async function writeOrdersToCSV(orders, outputPath) {
     const currentDate = new Date().toISOString().split('T')[0];
     const records = orders.map(order => ({
         order_id: order.sender?.order_id || '',
-        order_item_id: order.sender?.order_item_id || '',
+        order_item_id: order.package?.order_item_id || '',
         quantity: order.package?.order_item_quanity || '', 
         shipdate:  currentDate,   
         courier_code: order?.courier || '',
         courier_name: order?.service_name || '',
         tracking_number: order?.tracking_number || '',
-        ship_method: order?.ship_method || ''
+        ship_method: order?.ship_method || 'shippo'
     }));
     try {
         await csvWriter.writeRecords(records);
@@ -266,7 +266,7 @@ router.post('/bulk/:userId', async (req, res) => {
             const service_type = orderData.service_name;
             const services = await User.findById(userId);
             var service_cost = 0;
-            if (courier == "UPS" && service_type.split(' ')[0]=="UPS") {
+            if (courier == "UPS" && service_type?.split(' ')[0]=="UPS") {
                 service_cost = services.services[0].services[service_type].standard_cost;
             }
             else {
@@ -282,7 +282,6 @@ router.post('/bulk/:userId', async (req, res) => {
             user.balance = Number(user.balance) - Number(service_cost);
             user.totalSpent += Number(service_cost);
             await user.save();
-            
             const shipment = {
                 "api_key": process.env.API_KEY,
                 "service_name": orderData.service_name,
@@ -305,7 +304,6 @@ router.post('/bulk/:userId', async (req, res) => {
 
             };
 
-            
             bulkOrderData.orders.push(order);
         }
         // Generate PDF
