@@ -105,3 +105,6 @@ dist
 
 # ignore key file
 config/keys.js
+
+# Uploads Folder
+uploads/
