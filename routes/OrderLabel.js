@@ -202,7 +202,6 @@ router.post('/price/bulk', async (req, res) => {
 
             totalPrice += service_cost; // Add each service cost to the total price
         }
-        console.log("Total Price: ", totalPrice); 
         return res.status(200).json({
             totalPrice // Return the calculated total price
         });
