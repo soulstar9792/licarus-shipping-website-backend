@@ -1,13 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/Users");
 const router = express.Router();
 const LabelServicesType = require("../LabelServicesType.json");
 // const dotenv = require('dotenv');
 // dotenv.config();
 
 const auth = require("../middleware/auth");
+const User = require("../models/Users");
 
 // Register
 router.post("/register", async (req, res) => {
@@ -189,7 +189,6 @@ router.post("/save-address/:userId", async (req, res) => {
 router.post("/delete-address/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log(req.body);
     const addressToDeleteId = req.body.id;
     if (!addressToDeleteId) {
       return res
@@ -232,6 +231,50 @@ router.get("/get-address/:userId", async (req, res) => {
       .json({ message: "Address found ", savedAddress: savedAddress });
   } catch (error) {}
 });
+
+router.post('/update-address/:userId/:addressId',async(req,res)=>{
+      try {
+        const {userId} = req.params; 
+        const {addressId} = req.params; 
+        const {formData} = req.body; 
+
+        console.log("Form Data",formData)
+        if(!formData){
+          return res.status(400).json({message: "Please Provide an Updated Address"}); 
+        }
+
+        const UpdatedUser = await User.findOneAndUpdate(
+          {_id:userId, "savedAddresss._id": addressId},
+          {
+            $set:{
+            "savedAddresss.$.address_id":formData.address_id,
+            "savedAddresss.$.name":formData.name,
+            "savedAddresss.$.phone":formData.phone,
+            "savedAddresss.$.company":formData.company,
+            "savedAddresss.$.street1":formData.street,
+            "savedAddresss.$.street2":formData.street2,
+            "savedAddresss.$.city":formData.city,
+            "savedAddresss.$.state":formData.state,
+            "savedAddresss.$.zip":formData.zip,
+            "savedAddresss.$.country":formData.country,
+          }
+        },
+          {new:true,runValidators:true}
+        )
+        if(!UpdatedUser) {
+          return res.status(404).json({ message: "User or address not found" });
+        }
+        console.log("Updated User",UpdatedUser); 
+
+        return res.status(200).json({
+          message: "Address updated successfully",
+          updatedAddress: UpdatedUser.savedAddresss,
+        });
+      } catch (error) {
+        console.log("Error Occured: ",error)
+        res.status(500).json({ message: "Error updating address", error });
+      }
+})
 
 router.get("/get-sku/:userId", async (req, res) => {
   try {

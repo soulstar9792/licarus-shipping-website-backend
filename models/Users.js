@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const LabelServiceTypes = require("../LabelServicesType.json");
 
 const savedAddressSchema = new mongoose.Schema({
   address_id: {
@@ -17,8 +16,7 @@ const savedAddressSchema = new mongoose.Schema({
     required: true,
   },
   phone: {
-    type: String,
-    required: true,
+    type: Number ,
   },
   company: {
     type: String || Number,
