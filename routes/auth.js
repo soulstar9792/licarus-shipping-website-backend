@@ -237,17 +237,16 @@ router.post('/add-sku/:userId', async (req,res)=>{
     try {
         const {userId} = req.params; 
         const {parsedData} = req.body ; 
-
         if(!parsedData){
             return res.status(400).json({message:"Please Provide SKU Data"}); 
         }
         const skuData = [{
-            sku:parsedData[0].SKU,
-            maxQty:parsedData[0].MaxQTYPerBox,
-            weight:parsedData[0].WeightPerUnit,
-            length:parsedData[0].Length,
-            width:parsedData[0].Width,
-            height:parsedData[0].Height
+            sku:parsedData[0].SKU || parsedData[0].sku,
+            maxQty:parsedData[0].MaxQTYPerBox || parsedData[0].maxQty,
+            weight:parsedData[0].WeightPerUnit || parsedData[0].weight,
+            length:parsedData[0].Length || parsedData[0].length,
+            width:parsedData[0].Width || parsedData[0].width,
+            height:parsedData[0].Height || parsedData[0].height,
         }]
         const Updateduser = await User.findByIdAndUpdate(userId,
             {$push: {UserSKU:skuData}},
