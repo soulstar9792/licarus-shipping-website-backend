@@ -11,9 +11,8 @@ const LabelServiceTypes = require('../models/LabelServiceTypes');
 const User = require('../models/Users');
 const { createObjectCsvWriter } = require('csv-writer');
 
-
 // Sample GET endpoint to retrieve orders
-router.get('/get-orders/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
     const { userId } = req.params; 
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required' });

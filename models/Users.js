@@ -3,6 +3,11 @@ const LabelServiceTypes = require('../LabelServicesType.json');
 
 
 const savedAddressSchema = new mongoose.Schema({
+    address_id:{
+        type: String,
+        required: true, 
+    },
+    
     type: {
         type: String,
         enum: ['sender', 'receiver'], 
