@@ -11,7 +11,6 @@ const LabelServiceTypes = require('../models/LabelServiceTypes');
 const User = require('../models/Users');
 const { createObjectCsvWriter } = require('csv-writer');
 
-
 // Sample GET endpoint to retrieve orders
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params; 

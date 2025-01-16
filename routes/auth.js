@@ -163,7 +163,7 @@ router.post('/save-address/:userId', async(req,res)=>{
                 return res.status(404).json({message: "User not Found"}); 
             } 
             return res.status(200).json({
-                message: "Addres Added Succesfully ", 
+                message: "Address Added Succesfully ", 
                 savedAddresss: Updateduser.savedAddresss
             })
         } catch (error) {
@@ -175,6 +175,7 @@ router.post('/save-address/:userId', async(req,res)=>{
 router.post('/delete-address/:userId', async (req, res) => {
     try {
       const { userId } = req.params;
+      console.log(req.body); 
       const addressToDeleteId = req.body.id;  
           if (!addressToDeleteId) {
         return res.status(400).json({ message: "Please provide the address to delete" });
