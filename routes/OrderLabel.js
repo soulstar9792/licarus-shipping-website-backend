@@ -426,4 +426,21 @@ router.get("/download/:filename", (req, res) => {
   });
 });
 
+router.get("/file/template", async (req, res) => {
+  try {
+    const filename = "BulkTemplate.csv";
+    const filePath = path.join(__dirname, "../uploads/", filename);
+
+    res.download(filePath, "Bulk_Template.csv", (err) => {
+      if (err) {
+        console.error("File download error:", err);
+        res.status(500).send("Error occurred while downloading the file.");
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("An unexpected error occurred.");
+  }
+});
+
 module.exports = router;
