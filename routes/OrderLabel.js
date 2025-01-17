@@ -83,6 +83,7 @@ router.post("/", async (req, res) => {
   try {
     const shipment = {
       api_key: process.env.API_KEY,
+      version: req.body.version,
       service_name: req.body.service_name,
       manifested: false,
       sender: req.body.sender,
@@ -244,7 +245,7 @@ async function writeOrdersToCSV(orders, outputPath) {
     courier_code: order?.courier || "",
     courier_name: order?.service_name || "",
     tracking_number: order?.tracking_number || "",
-    ship_method: order?.ship_method || "shippo",
+    ship_method: order?.ship_data || "",
   }));
   try {
     await csvWriter.writeRecords(records);
@@ -289,16 +290,19 @@ router.post("/bulk/:userId", async (req, res) => {
       }
       user.balance = Number(user.balance) - Number(service_cost);
       user.totalSpent += Number(service_cost);
+
       await user.save();
+
       const shipment = {
         api_key: process.env.API_KEY,
         service_name: orderData.service_name,
+        version: orderData.package.provider,
         manifested: false,
         sender: orderData.sender,
         receiver: orderData.receiver,
         package: orderData.package,
       };
-
+  
       const response = await axios.post(
         `https://api.labelexpress.io/v1/${courier}/image/create`,
         shipment
@@ -311,9 +315,8 @@ router.post("/bulk/:userId", async (req, res) => {
         tracking_number: response.data.data.tracking_number,
         courier: orderData.courier,
         service_name: orderData.service_name,
-        ship_data: response.data.shippo,
+        ship_data: orderData.package.provider,
       };
-
       bulkOrderData.orders.push(order);
     }
     // Generate PDF
