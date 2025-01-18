@@ -1,0 +1,3 @@
+ServiceName,FromSenderName,FromPhone,FromCompany,FromStreet1,FromStreet2,FromCity,FromStateProvince,FromZipPostal,FromCountry,ToRecipientName,ToPhone,ToCompany,ToStreet1,ToStreet2,ToCity,ToStateProvince,ToZipPostal,ToCountry,PackageLength,PackageWidth,PackageHeight,PackageWeight,PackageDescription,PackageReference1,PackageReference2
+"USPS Priority Mail, United States",Required,Optional,Optional,Required,Optional,Required,Required,Required,US,Required,Optional,Optional,Required,Optional,Required,Required,Required,US,Required,Required,Required,Required,Optional,Optional,Optional
+,,,,,,,(abbreviated),,,,,,,,,(abbreviated),,,,,,,,,

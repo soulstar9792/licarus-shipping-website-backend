@@ -432,7 +432,7 @@ router.get("/download/:filename", (req, res) => {
 router.get("/file/template", async (req, res) => {
   try {
     const filename = "BulkTemplate.csv";
-    const filePath = path.join(__dirname, "../uploads/", filename);
+    const filePath = path.join(__dirname, "../resources/", filename);
 
     res.download(filePath, "Bulk_Template.csv", (err) => {
       if (err) {
