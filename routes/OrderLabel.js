@@ -84,14 +84,14 @@ router.post("/", async (req, res) => {
     const shipment = {
       api_key: process.env.API_KEY,
       version: req.body.version,
-      service_name: req.body.service_name,
+      service_name: req.body.service_name.trim(),
       manifested: false,
       sender: req.body.sender,
       receiver: req.body.receiver,
       package: req.body.package,
     };
 
-    const service_type = req.body.service_name;
+    const service_type = req.body.service_name.trim();
     const services = await User.findById(req.body.user_id);
     var service_cost = 0;
     if (req.body.courier == "UPS") {
@@ -197,7 +197,7 @@ router.post("/price/bulk", async (req, res) => {
     // Iterate over each order in the bulk array and calculate the total price
     for (const orderData of ordersArray) {
       const courier = orderData.courier;
-      const service_type = orderData.service_name;
+      const service_type = orderData.service_name.trim();
       let service_cost = 0;
       if (courier === "UPS" && service_type?.split(" ")[0] === "UPS") {
         service_cost = user.services[0].services[service_type].standard_cost;
@@ -271,7 +271,7 @@ router.post("/bulk/:userId", async (req, res) => {
       if (orderData.sender.order_id != null) {
         isTxt = true;
       }
-      const service_type = orderData.service_name;
+      const service_type = orderData.service_name.trim();
       const services = await User.findById(userId);
       var service_cost = 0;
       if (courier == "UPS" && service_type?.split(" ")[0] == "UPS") {
@@ -295,7 +295,7 @@ router.post("/bulk/:userId", async (req, res) => {
 
       const shipment = {
         api_key: process.env.API_KEY,
-        service_name: orderData.service_name,
+        service_name: orderData.service_name.trim(),
         version: orderData.package.provider,
         manifested: false,
         sender: orderData.sender,
@@ -314,7 +314,7 @@ router.post("/bulk/:userId", async (req, res) => {
         label: response.data.data,
         tracking_number: response.data.data.tracking_number,
         courier: orderData.courier,
-        service_name: orderData.service_name,
+        service_name: orderData.service_name.trim(),
         ship_data: orderData.package.provider,
       };
       bulkOrderData.orders.push(order);
