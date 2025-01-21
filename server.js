@@ -19,10 +19,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/orders", OrderRouter);
 
 console.log("--------------");
-console.log("--------------");
-console.log("HELLO WORLD");
-console.log("--------------");
-console.log("--------------");
 
 mongoose
   .connect(process.env.MONGO_URI)
