@@ -8,6 +8,7 @@ const LabelServicesType = require("../LabelServicesType.json");
 
 const auth = require("../middleware/auth");
 const User = require("../models/Users");
+const { default: axios } = require("axios");
 
 // Register
 router.post("/register", async (req, res) => {
@@ -67,6 +68,50 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Get Api Balance 
+
+router.get("/api/balance", async (req,res)=>{
+  try {
+
+    const url = `https://api.labelexpress.io/v1/client/information`;
+
+    const response = await axios.request({
+      method: "GET",
+      url: "https://api.labelexpress.io/v1/client/information",
+      headers: { "Content-Type": "application/json" },
+      data: { api_key: process.env.API_KEY } 
+    });
+
+  console.log("Response from the Api ", response  );     
+  res.json({message: "success",balance: response.data.data.client_balance}); 
+  } catch (error) {
+    console.log("An Error Occured", error); 
+    res.json({message: "An Error occured"}); 
+  }
+})
+
+router.get("/api/deposit", async (req,res)=>{
+  console.log("----------------API------------------"); 
+  try {
+
+
+    const response = await axios.request({
+      method: "GET",
+      url: "https://api.labelexpress.io/v1/client/deposit/fetch/all",
+      headers: { "Content-Type": "application/json" },
+      data: { api_key: process.env.API_KEY } 
+    });
+
+  console.log("Response from the Api ", response.data);     
+  res.json({message: "success",deposits: response.data.data}); 
+  } catch (error) {
+    console.log("An Error Occured", error); 
+    res.json({message: "An Error occured"}); 
+  }
+})
+
+
 
 // Get all users (Admin only)
 router.get("/users", auth, async (req, res) => {
