@@ -10,6 +10,7 @@ dotenv.config();
 
 const authRouter = require("./routes/auth");
 const OrderRouter = require("./routes/OrderLabel");
+const paymentRouter = require("./routes/payment");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,6 +18,7 @@ app.use(cors());
 
 app.use("/api/auth", authRouter);
 app.use("/api/orders", OrderRouter);
+app.use("/api/payment", paymentRouter);
 
 console.log("--------------");
 
