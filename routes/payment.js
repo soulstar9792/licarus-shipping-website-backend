@@ -49,7 +49,7 @@ router.post("/add-payment/:userId", auth, async (req, res) => {
 router.get("/payment-history/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
-    const payments = await Payment.find({ userId }).sort({ date: -1 });
+    let payments = await Payment.find({ userId }).sort({ date: -1 });
 
     if (!payments.length) payments = [];
 
