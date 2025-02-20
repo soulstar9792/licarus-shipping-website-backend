@@ -51,9 +51,7 @@ router.get("/payment-history/:userId", auth, async (req, res) => {
     const { userId } = req.params;
     const payments = await Payment.find({ userId }).sort({ date: -1 });
 
-    if (!payments.length) {
-      return res.status(404).json({ message: "No payment history found." });
-    }
+    if (!payments.length) payments = [];
 
     res.status(200).json({ message: "Payment history retrieved", payments });
 
