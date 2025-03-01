@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const User = require("../models/Users");
 const Payment = require("../models/Payment");
 const bodyParser = require("body-parser");
+const BTCPayServerAPI = require("../utils/btcPayActions");
 
 router.use(bodyParser.json()); // Ensure we parse JSON from BTCPayServer
 
@@ -21,28 +22,7 @@ router.get("/top-up/:userId", auth, async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const apiEndpoint = `/api/v1/stores/${process.env.BTCPAY_STORE_ID}/invoices`;
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: 'token ' + process.env.BTCPAY_API_KEY
-    };
-    const payload = {}; // Define your payload here
-
-    // Use fetch with await to get the response
-    const response = await fetch(process.env.BTCPAY_SERVER_URL + apiEndpoint, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      // If the response is not OK, throw an error
-      const errorData = await response.json();
-      console.error("Error from BTCPay API:", errorData);
-      return res.status(response.status).json({ message: "Error from BTCPay API", error: errorData });
-    }
-
-    const data = await response.json(); // Process the fetched data
+    const data = await BTCPayServerAPI.createInvoice(userId);
     // Send back the fetched data in response
     res.status(200).json(data);
   } catch (error) {
@@ -64,27 +44,7 @@ router.get("/top-up-history/:userId", auth, async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const apiEndpoint = `/api/v1/stores/${process.env.BTCPAY_STORE_ID}/invoices`;
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: 'token ' + process.env.BTCPAY_API_KEY
-    };
-    const payload = {}; // Define your payload here
-
-    // Use fetch with await to get the response
-    const response = await fetch(process.env.BTCPAY_SERVER_URL + apiEndpoint+"?take=20", {
-      method: 'GET',
-      headers: headers
-    });
-
-    if (!response.ok) {
-      // If the response is not OK, throw an error
-      const errorData = await response.json();
-      console.error("Error from BTCPay API:", errorData);
-      return res.status(response.status).json({ message: "Error from BTCPay API", error: errorData });
-    }
-
-    const data = await response.json(); // Process the fetched data
+    const data = await BTCPayServerAPI.retrieveInvoices();
     // Send back the fetched data in response
     res.status(200).json(data);
   } catch (error) {
@@ -99,14 +59,13 @@ router.get("/top-up-history/:userId", auth, async (req, res) => {
  */
 router.post("/btcpay-webhook", async (req, res) => {
   try {
-    const { event, data } = req.body;
+    const { type, metadata, invoiceId } = req.body;
 
-    console.log("BTCPay Webhook Event:", event, data);
+    console.log("BTCPay Webhook Event:", type, req.body);
 
-    if (event === "invoice_settled") {
-      const { metadata, amount, currency, id: transactionId } = data;
+    // Ensure the event type is InvoiceSettled
+    if (type === "InvoiceSettled") {
       const userId = metadata?.userId;
-      const paymentMethod = "BTC";
 
       if (!userId) {
         console.warn("⚠️ No userId found in metadata.");
@@ -119,31 +78,43 @@ router.post("/btcpay-webhook", async (req, res) => {
         return res.status(404).json({ message: "User not found." });
       }
 
-      // Save payment in database
-      const newPayment = new Payment({
-        userId,
-        amount,
-        paymentMethod,
-        transactionId,
-        status: "Completed",
-        date: new Date(),
-      });
+      // Get the invoice details from BTCPay API
+      try {
+        const invoiceData = await BTCPayServerAPI.getInvoice(process.env.BTCPAY_STORE_ID, invoiceId);
 
-      await newPayment.save();
+        // Extract relevant information
+        const amount = parseFloat(invoiceData.amount); // Ensure it's a number
+        const currency = invoiceData.currency;
 
-      // Update user balance
-      user.balance += amount;
-      await user.save();
+        // Save payment in database or whatever business logic is required
+        const newPayment = new Payment({
+          userId,
+          amount,
+          paymentMethod: "BTC",
+          transactionId: invoiceId, // Using invoiceId as transactionId
+          status: "Completed",
+          date: new Date(),
+        });
 
-      console.log(`✅ User ${userId} balance updated by +${amount} ${currency}`);
+        await newPayment.save();
+
+        // Update user balance
+        user.balance += amount;
+        await user.save();
+
+        console.log(`✅ User ${userId} balance updated by +${amount} ${currency}`);
+      } catch (error) {
+        console.error(`Failed to retrieve invoice: ${error.message}`);
+        return res.status(500).json({ message: "Failed to retrieve invoice." });
+      }
     }
 
     res.sendStatus(200);
-
   } catch (error) {
     console.error("❌ Error handling BTCPay webhook:", error);
     res.status(500).json({ message: "Error processing payment", error });
   }
 });
+
 
 module.exports = router;
