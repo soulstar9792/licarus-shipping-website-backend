@@ -11,32 +11,40 @@ router.use(bodyParser.json()); // Ensure we parse JSON from BTCPayServer
  * 🔹 Add Payment Manually
  * User manually records a payment (e.g., bank transfers or admin entries).
  */
-router.post("/add-payment/:userId", auth, async (req, res) => {
+router.get("/top-up/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { amount, paymentMethod, transactionId, status } = req.body;
-
-    if (!amount || !paymentMethod || !transactionId || !status) {
-      return res.status(400).json({ message: "Missing required payment details." });
-    }
+    console.log("User requested top up => userId:", userId);
 
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const newPayment = new Payment({
-      userId,
-      amount,
-      paymentMethod,
-      transactionId,
-      status,
-      date: new Date(),
+    const apiEndpoint = `/api/v1/stores/${process.env.BTCPAY_STORE_ID}/invoices`;
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'token ' + process.env.BTCPAY_API_KEY
+    };
+    const payload = {}; // Define your payload here
+
+    // Use fetch with await to get the response
+    const response = await fetch(process.env.BTCPAY_SERVER_URL + apiEndpoint, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload)
     });
 
-    await newPayment.save();
-    res.status(201).json({ message: "Payment recorded successfully", payment: newPayment });
+    if (!response.ok) {
+      // If the response is not OK, throw an error
+      const errorData = await response.json();
+      console.error("Error from BTCPay API:", errorData);
+      return res.status(response.status).json({ message: "Error from BTCPay API", error: errorData });
+    }
 
+    const data = await response.json(); // Process the fetched data
+    // Send back the fetched data in response
+    res.status(200).json(data);
   } catch (error) {
     console.error("Error adding payment:", error);
     res.status(500).json({ message: "Error recording payment", error });
@@ -46,18 +54,42 @@ router.post("/add-payment/:userId", auth, async (req, res) => {
 /**
  * 🔹 Retrieve User Payment History
  */
-router.get("/payment-history/:userId", auth, async (req, res) => {
+router.get("/top-up-history/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
-    let payments = await Payment.find({ userId }).sort({ date: -1 });
+    console.log("User requested top up => userId:", userId);
 
-    if (!payments.length) payments = [];
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
-    res.status(200).json({ message: "Payment history retrieved", payments });
+    const apiEndpoint = `/api/v1/stores/${process.env.BTCPAY_STORE_ID}/invoices`;
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'token ' + process.env.BTCPAY_API_KEY
+    };
+    const payload = {}; // Define your payload here
 
+    // Use fetch with await to get the response
+    const response = await fetch(process.env.BTCPAY_SERVER_URL + apiEndpoint+"?take=20", {
+      method: 'GET',
+      headers: headers
+    });
+
+    if (!response.ok) {
+      // If the response is not OK, throw an error
+      const errorData = await response.json();
+      console.error("Error from BTCPay API:", errorData);
+      return res.status(response.status).json({ message: "Error from BTCPay API", error: errorData });
+    }
+
+    const data = await response.json(); // Process the fetched data
+    // Send back the fetched data in response
+    res.status(200).json(data);
   } catch (error) {
-    console.error("Error retrieving payment history:", error);
-    res.status(500).json({ message: "Error retrieving payment history", error });
+    console.error("Error loading invoices:", error);
+    res.status(500).json({ message: "Error loading invoices", error });
   }
 });
 
