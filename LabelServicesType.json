@@ -267,59 +267,59 @@
             "services": {
                 "USPS Ground Advantage, Adult Signature Required, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Ground Advantage, Adult Signature Required, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Ground Advantage, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Ground Advantage, Signature Required, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Ground Advantage, Signature Required, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Ground Advantage, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail Express, Adult Signature Required, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail Express, Adult Signature Required, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail Express, Signature Required, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail Express, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail, Adult Signature Required, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail, Signature Required, Restricted Delivery, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail, Signature Required, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 },
                 "USPS Priority Mail, United States": {
                     "manifested_cost": 0,
-                    "standard_cost": 0.1
+                    "standard_cost": 0.5
                 }
             }
         }

@@ -13,7 +13,7 @@ const bulkOrderSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  __filename: {
+  fileName: {
     type: String,
     required: true,
   },
