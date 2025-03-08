@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-// Socket Server
+// Hook Server
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -19,18 +19,18 @@ const firebaseConfig = {
   appId: process.env.FIREBASE_APP_ID
 };
 
-const SocketServer = require('./SocketServer');
-const sServer = new SocketServer(firebaseConfig, 8080); // You can change the port if needed
 
 // API Server
 const authRouter = require("./routes/auth");
 const OrderRouter = require("./routes/OrderLabel");
 const paymentRouter = require("./routes/payment");
+const hookRouter = require('./routes/hook');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+app.use('/hook', hookRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/orders", OrderRouter);
 app.use("/api/payment", paymentRouter);
@@ -38,9 +38,9 @@ app.use("/api/payment", paymentRouter);
 console.log("--------------");
 
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+.connect(process.env.MONGO_URI)
+.then(() => console.log("Connected to MongoDB"))
+.catch((err) => console.error("MongoDB connection error:", err));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
