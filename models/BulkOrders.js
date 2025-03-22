@@ -13,7 +13,15 @@ const bulkOrderSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  fileName: {
+  pdfName: {
+    type: String,
+    required: true,
+  },
+  autoConfirmCSVName: {
+    type: String,
+    required: true,
+  },
+  resultCSVName: {
     type: String,
     required: true,
   },
