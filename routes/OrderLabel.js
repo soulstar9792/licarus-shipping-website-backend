@@ -155,7 +155,7 @@ router.post("/price/bulk", async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const totalPrice = shipments.reduce((total, orderData) => {
-      const serviceCost = getServiceCost(user, orderData.courier, orderData.service_name.trim());
+      const serviceCost = orderData.service_name ? getServiceCost(user, orderData.courier, orderData.service_name.trim()) : 0;
       return total + serviceCost;
     }, 0);
 
@@ -175,19 +175,94 @@ function getServiceCost(user, courier, service_type) {
   }
 }
 
-// Function to handle CSV writing
-async function writeOrdersToCSV(orders, outputPath) {
+// Function to make result csv file of bulk order.
+async function writeOrdersToResultCSV(orders, outputPath) {
   const csvWriter = createObjectCsvWriter({
     path: outputPath,
     header: [
-      { id: "order_id", title: "Order ID" },
-      { id: "order_item_id", title: "Order-item-id" },
+      { id: "service_name", title: "ServiceName" },
+      { id: "sender_name", title: "FromSenderName" },
+      { id: "sender_phone", title: "FromPhone" },
+      { id: "sender_company", title: "FromCompany" },
+      { id: "sender_address1", title: "FromStreet1" },
+      { id: "sender_address2", title: "FromStreet2" },
+      { id: "sender_city", title: "FromCity" },
+      { id: "sender_state_province", title: "FromStateProvince" },
+      { id: "sender_zip_postal", title: "FromZipPostal" },
+      { id: "sender_country", title: "FromCountry" },
+      { id: "receiver_name", title: "ToRecipientName" },
+      { id: "receiver_address1", title: "ToStreet1" },
+      { id: "receiver_address2", title: "ToStreet2" },
+      { id: "receiver_city", title: "ToCity" },
+      { id: "receiver_state_province", title: "ToStateProvince" },
+      { id: "receiver_zip_postal", title: "ToZipPostal" },
+      { id: "receiver_country", title: "ToCountry" },
       { id: "quantity", title: "Quantity" },
-      { id: "shipdate", title: "Ship-date" },
-      { id: "courier_code", title: "Courier-code" },
-      { id: "courier_name", title: "Courier-name" },
-      { id: "tracking_number", title: "Tracking-number" },
-      { id: "ship_method", title: "Ship-method" },
+      { id: "package_length", title: "PackageLength" },
+      { id: "package_width", title: "PackageWidth" },
+      { id: "package_height", title: "PackageHeight" },
+      { id: "package_weight", title: "PackageWeight" },
+      { id: "package_description", title: "PackageDescription" },
+      { id: "package_reference1", title: "PackageReference1" },
+      { id: "package_reference2", title: "PackageReference2" },
+      { id: "tracking_number", title: "TrackingNumber" },
+    ],
+  });
+
+  const currentDate = new Date().toISOString().split("T")[0];
+  const records = orders.map((order) => ({
+    order_id: order.sender?.order_id || "",
+    service_name: order.service_name || "",
+    sender_name: order.sender?.sender_name || "",
+    sender_phone: order.sender?.sender_phone || "",
+    sender_company: order.sender?.sender_company || "",
+    sender_address1: order.sender?.sender_address1 || "",
+    sender_address2: order.sender?.sender_address2 || "",
+    sender_city: order.sender?.sender_city || "",
+    sender_state_province: order.sender?.sender_state_province || "",
+    sender_zip_postal: order.sender?.sender_zip_postal || "",
+    sender_country: order.sender?.sender_country || "",
+    receiver_name: order.receiver?.receiver_name || "",
+    receiver_address1: order.receiver?.receiver_address1 || "",
+    receiver_address2: order.receiver?.receiver_address2 || "",
+    receiver_city: order.receiver?.receiver_city || "",
+    receiver_state_province: order.receiver?.receiver_state_province || "",
+    receiver_zip_postal: order.receiver?.receiver_zip_postal || "",
+    receiver_country: order.receiver?.receiver_country || "",
+    quantity: order.package?.order_item_quantity || "",
+    package_length: order.package?.package_length || "",
+    package_width: order.package?.package_width || "",
+    package_height: order.package?.package_height || "",
+    package_weight: order.package?.package_weight || "",
+    package_description: order.package?.package_description || "",
+    package_reference1: order.package?.package_reference1 || "",
+    package_reference2: order.package?.package_reference2 || "",
+    tracking_number: order.tracking_number || "",
+  }));
+
+  try {
+    await csvWriter.writeRecords(records);
+    console.log("Bulk order result CSV file written successfully.");
+    return true;
+  } catch (error) {
+    console.error("Error writing bulk order result CSV:", error);
+    throw error;
+  }
+}
+
+// generate auto confirm csv file from the bulk order.
+async function writeOrdersToAutoConfirmCSV(orders, outputPath) {
+  const csvWriter = createObjectCsvWriter({
+    path: outputPath,
+    header: [
+      { id: "order_id", title: "order-id" },
+      { id: "order_item_id", title: "order-item-id" },
+      { id: "quantity", title: "quantity" },
+      { id: "shipdate", title: "ship-date" },
+      { id: "courier_code", title: "carrier-code" },
+      { id: "courier_name", title: "carrier-name" },
+      { id: "tracking_number", title: "tracking-number" },
+      { id: "ship_method", title: "ship-method" },
     ],
   });
 
@@ -205,10 +280,10 @@ async function writeOrdersToCSV(orders, outputPath) {
 
   try {
     await csvWriter.writeRecords(records);
-    console.log("CSV file written successfully.");
+    console.log("Auto confirm CSV file written successfully.");
     return true;
   } catch (error) {
-    console.error("Error writing CSV:", error);
+    console.error("Error writing Auto confirm CSV:", error);
     throw error;
   }
 }
@@ -228,7 +303,7 @@ router.post("/bulk/:userId", async (req, res) => {
         isTxt = true;
       }
 
-      const service_type = orderData.service_name.trim();
+      const service_type = ordersArray[0].service_name.trim();
       const services = await User.findById(userId);
       
       const service_cost = getServiceCost(services, courier, service_type);
@@ -275,33 +350,40 @@ router.post("/bulk/:userId", async (req, res) => {
 
     const currentTime = new Date();
     const formattedTime = `${currentTime.getFullYear()}${String(currentTime.getMonth() + 1).padStart(2, '0')}${String(currentTime.getDate()).padStart(2, '0')}${String(currentTime.getHours()).padStart(2, '0')}${String(currentTime.getMinutes()).padStart(2, '0')}${String(currentTime.getSeconds()).padStart(2, '0')}`;
-    let fileName = "";
+    const pdfName = `bulk-orders-${formattedTime}.pdf`;
+    const resultCSVName = `bulk-orders-${formattedTime}-result.csv`;
+    const autoConfirmCSVName = isTxt ? `bulk-orders-${formattedTime}-auto-confirm.csv` : null;  
+    
+    // generating label pdf.
+    const pdfDoc = new PDFDocument({ autoFirstPage: false });
+    const pdfPath = path.join(uploadsDir, pdfName);
+    pdfDoc.pipe(fs.createWriteStream(pdfPath));
 
-    if (!isTxt) {
-      const pdfDoc = new PDFDocument({ autoFirstPage: false });
-      const pdfPath = path.join(uploadsDir, `bulk-orders-${formattedTime}.pdf`);
-      pdfDoc.pipe(fs.createWriteStream(pdfPath));
+    for (const order of bulkOrderData.orders) {
+      if (order.label.base64_encoded_image) {
+        const imgBuffer = Buffer.from(order.label.base64_encoded_image, "base64");
+        const dimensions = sizeOf(imgBuffer);
 
-      for (const order of bulkOrderData.orders) {
-        if (order.label.base64_encoded_image) {
-          const imgBuffer = Buffer.from(order.label.base64_encoded_image, "base64");
-          const dimensions = sizeOf(imgBuffer);
-
-          pdfDoc.addPage({ size: [dimensions.width, dimensions.height] })
-            .image(imgBuffer, 0, 0, { width: dimensions.width, height: dimensions.height })
-            .moveDown();
-        }
+        pdfDoc.addPage({ size: [dimensions.width, dimensions.height] })
+          .image(imgBuffer, 0, 0, { width: dimensions.width, height: dimensions.height })
+          .moveDown();
       }
+    }
 
-      pdfDoc.end();
-      fileName = `bulk-orders-${formattedTime}.pdf`;
-    } else {
-      const csvFileName = `bulk-orders-${formattedTime}.csv`;
-      const csvFilePath = path.join(uploadsDir, csvFileName);
-      const isCsvWritten = await writeOrdersToCSV(bulkOrderData.orders, csvFilePath);
-      if (isCsvWritten) {
-        fileName = csvFileName;
-      } else {
+    pdfDoc.end();
+    
+    // generating result csv file.
+    const resultCSVPath = path.join(uploadsDir, resultCSVName);
+    const isCsvWritten = await writeOrdersToResultCSV(bulkOrderData.orders, resultCSVPath);
+    if (!isCsvWritten) {
+      throw new Error("Error generating bulk order result csv file.");
+    }
+    let autoConfirmCSVPath = null;
+    // generating auto-confirm file if the source is from Amazon.
+    if (isTxt) {
+      autoConfirmCSVPath = path.join(uploadsDir, autoConfirmCSVName);
+      const isCsvWritten = await writeOrdersToAutoConfirmCSV(bulkOrderData.orders, autoConfirmCSVPath);
+      if (!isCsvWritten) {
         throw new Error("Error generating CSV file");
       }
     }
@@ -310,18 +392,24 @@ router.post("/bulk/:userId", async (req, res) => {
       userId,
       courier:bulkOrderData.orders[0].courier,
       bulkOrderData,
-      fileName,
+      pdfName,
+      resultCSVName,
+      autoConfirmCSVName,
     });
     const savedBulkOrder = await bulkOrder.save();
 
     res.status(200).json({
       message: "Bulk orders created successfully",
-      fileName,
+      fileData: {
+        pdfName,
+        resultCSVName,
+        autoConfirmCSVName,
+      },
       data: savedBulkOrder,
     });
   } catch (error) {
     console.error("Error creating bulk orders:", error);
-    return res.status(500).json({ message: "Error creating bulk orders", error: error.message });
+    return res.status(error.status || 500).json({ message: "Error creating bulk orders", data: error.response && error.response.data }); 
   }
 });
 
@@ -337,7 +425,7 @@ router.get("/bulk/:userId", async (req, res) => {
     return res.status(200).json(bulkOrders);
   } catch (error) {
     console.error("Error retrieving bulk orders:", error);
-    return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: error.data });
   }
 });
 
