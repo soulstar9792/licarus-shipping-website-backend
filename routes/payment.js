@@ -37,7 +37,7 @@ router.get("/top-up/:userId", auth, async (req, res) => {
 router.get("/top-up-history/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log("User requested top up => userId:", userId);
+    console.log("User requested top up history => userId:", userId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -45,8 +45,11 @@ router.get("/top-up-history/:userId", auth, async (req, res) => {
     }
 
     const data = await BTCPayServerAPI.retrieveInvoices();
+    console.log("Retrived Invoices:", data);
+    //filter out invoices that are belong to the user
+    const filteredData = data.filter(invoice => invoice.metadata.userId === userId);
     // Send back the fetched data in response
-    res.status(200).json(data);
+    res.status(200).json(filteredData);
   } catch (error) {
     console.error("Error loading invoices:", error);
     res.status(500).json({ message: "Error loading invoices", error });

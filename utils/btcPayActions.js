@@ -42,9 +42,11 @@ const BTCPayServerAPI = {
       headers: headers,
     });
 
+    console.log("Retrived Invoices:", response);
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`BTCPay API Error: ${errorData}`);
+      console.log(errorData);
+      throw new Error(`BTCPay API Error: ${response.statusText}`);
     }
 
     return await response.json();
