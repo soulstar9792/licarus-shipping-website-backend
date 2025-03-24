@@ -239,7 +239,7 @@ async function writeOrdersToResultCSV(orders, outputPath) {
     receiver_country: order.receiver?.receiver_country || "",
 
     quantity: order.package?.quantity || "",
-    sku: order.package?.sku || "",
+    sku: order.package?.sku_number || "",
 
     package_length: order.package?.package_length || "",
     package_width: order.package?.package_width || "",
