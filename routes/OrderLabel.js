@@ -190,29 +190,34 @@ async function writeOrdersToResultCSV(orders, outputPath) {
       { id: "sender_state_province", title: "FromStateProvince" },
       { id: "sender_zip_postal", title: "FromZipPostal" },
       { id: "sender_country", title: "FromCountry" },
+
       { id: "receiver_name", title: "ToRecipientName" },
+      { id: "receiver_phone", title: "ToPhone" },
+      { id: "receiver_company", title: "ToCompany" },
       { id: "receiver_address1", title: "ToStreet1" },
       { id: "receiver_address2", title: "ToStreet2" },
       { id: "receiver_city", title: "ToCity" },
       { id: "receiver_state_province", title: "ToStateProvince" },
       { id: "receiver_zip_postal", title: "ToZipPostal" },
       { id: "receiver_country", title: "ToCountry" },
+
       { id: "quantity", title: "Quantity" },
+      { id: "sku", title: "SKU" },
+
       { id: "package_length", title: "PackageLength" },
       { id: "package_width", title: "PackageWidth" },
       { id: "package_height", title: "PackageHeight" },
       { id: "package_weight", title: "PackageWeight" },
       { id: "package_description", title: "PackageDescription" },
-      { id: "package_reference1", title: "PackageReference1" },
-      { id: "package_reference2", title: "PackageReference2" },
+
       { id: "tracking_number", title: "TrackingNumber" },
     ],
   });
 
-  const currentDate = new Date().toISOString().split("T")[0];
   const records = orders.map((order) => ({
     order_id: order.sender?.order_id || "",
     service_name: order.service_name || "",
+
     sender_name: order.sender?.sender_name || "",
     sender_phone: order.sender?.sender_phone || "",
     sender_company: order.sender?.sender_company || "",
@@ -222,21 +227,26 @@ async function writeOrdersToResultCSV(orders, outputPath) {
     sender_state_province: order.sender?.sender_state_province || "",
     sender_zip_postal: order.sender?.sender_zip_postal || "",
     sender_country: order.sender?.sender_country || "",
+
     receiver_name: order.receiver?.receiver_name || "",
+    receiver_phone: order.receiver?.receiver_phone || "",
+    receiver_company: order.receiver?.receiver_company || "",
     receiver_address1: order.receiver?.receiver_address1 || "",
     receiver_address2: order.receiver?.receiver_address2 || "",
     receiver_city: order.receiver?.receiver_city || "",
     receiver_state_province: order.receiver?.receiver_state_province || "",
     receiver_zip_postal: order.receiver?.receiver_zip_postal || "",
     receiver_country: order.receiver?.receiver_country || "",
-    quantity: order.package?.order_item_quantity || "",
+
+    quantity: order.package?.quantity || "",
+    sku: order.package?.sku || "",
+
     package_length: order.package?.package_length || "",
     package_width: order.package?.package_width || "",
     package_height: order.package?.package_height || "",
     package_weight: order.package?.package_weight || "",
     package_description: order.package?.package_description || "",
-    package_reference1: order.package?.package_reference1 || "",
-    package_reference2: order.package?.package_reference2 || "",
+
     tracking_number: order.tracking_number || "",
   }));
 
@@ -270,7 +280,7 @@ async function writeOrdersToAutoConfirmCSV(orders, outputPath) {
   const records = orders.map((order) => ({
     order_id: order.sender?.order_id || "",
     order_item_id: order.package?.order_item_id || "",
-    quantity: order.package?.order_item_quantity || "",
+    quantity: order.package?.package_reference1 || "",
     shipdate: currentDate,
     courier_code: order?.courier || "",
     courier_name: order?.service_name || "",
