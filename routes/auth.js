@@ -351,6 +351,7 @@ router.post("/add-sku/:userId", async (req, res) => {
         length: parsedData[0].Length || parsedData[0].length,
         width: parsedData[0].Width || parsedData[0].width,
         height: parsedData[0].Height || parsedData[0].height,
+        description: parsedData[0].Description || parsedData[0].description,
       },
     ];
     const Updateduser = await User.findByIdAndUpdate(
@@ -412,6 +413,7 @@ router.post("/update-sku/:userId/:skuId", async (req, res) => {
           "UserSKU.$.length": skuData.length,
           "UserSKU.$.width": skuData.width,
           "UserSKU.$.height": skuData.height,
+          "UserSKU.$.description": skuData.description,
         },
       },
       { new: true, runValidators: true }
