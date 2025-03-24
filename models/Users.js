@@ -75,6 +75,10 @@ const SKUSchema = new mongoose.Schema({
     type: Number,
     require: true,
   },
+  description: {
+    type: String,
+    require: false,
+  },
 });
 
 const userSchema = new mongoose.Schema({
