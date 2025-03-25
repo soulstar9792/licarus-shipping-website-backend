@@ -57,6 +57,34 @@ router.get("/top-up-history/:userId", auth, async (req, res) => {
 });
 
 /**
+ * 🔹 Retrieve 5 Most Recent Top Ups
+ */
+router.get("/recent-deposits/:userId", auth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("User requested top up history => userId:", userId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const data = await BTCPayServerAPI.retrieveInvoices();
+    console.log("Retrived Invoices:", data);
+    
+    //filter out invoices that are belong to the user
+    const recentDeposits = data.filter(invoice => invoice.metadata.userId === userId);
+    recentDeposits.sort((a, b) => b.createdAt - a.createdAt);
+    recentDeposits.splice(5);
+    // Send back the fetched data in response
+    res.status(200).json(recentDeposits);
+  } catch (error) {
+    console.error("Error loading invoices:", error);
+    res.status(500).json({ message: "Error loading invoices", error });
+  }
+});
+
+/**
  * 🔹 Webhook from BTCPayServer
  * - Automatically updates balance when a payment is confirmed.
  */

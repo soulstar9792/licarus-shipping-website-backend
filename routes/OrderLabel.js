@@ -476,6 +476,39 @@ router.get("/file/template", async (req, res) => {
   }
 });
 
+
+// Endpoint to retrieve recent orders
+router.get("/recent/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  try {
+    const recentOrders = await Order.find({userId}).sort({ createdAt: -1 }).limit(5);
+    return res.status(200).json({ message: "Recent orders retrieved successfully", recentOrders });
+  } catch (error) {
+    console.error("Error retrieving recent orders:", error);
+    return res.status(500).json({ message: "Error retrieving recent orders", error: error.message });
+  }
+});
+
+// Endpoint to get total orders count
+router.get("/total/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+  try {
+    const totalOrders = await Order.find({userId}).countDocuments();
+    return res.status(200).json({ message: "Total orders count retrieved successfully", totalOrders });
+  } catch (error) {
+    console.error("Error retrieving total orders count:", error);
+    return res.status(500).json({ message: "Error retrieving total orders count", error: error.message });
+  }
+});
+
+
 // Generic error handler
 const handleError = (res, error) => {
   console.error("Error occurred:", error);
