@@ -90,11 +90,15 @@ router.get("/recent-deposits/:userId", auth, async (req, res) => {
  */
 router.post("/btcpay-webhook", async (req, res) => {
   try {
-    // Get the signature from headers
+    // Add debug logging
+    console.log('Received headers:', req.headers);
+    console.log('Received body:', req.body);
+    
     const btcpaySignature = req.headers['btcpay-sig'];
     
     if (!btcpaySignature) {
       console.error('❌ No BTCPay signature found in headers');
+      console.log('Available headers:', Object.keys(req.headers));
       return res.status(401).json({ message: 'No signature provided' });
     }
 
@@ -105,6 +109,10 @@ router.post("/btcpay-webhook", async (req, res) => {
       .createHmac('sha256', webhookSecret)
       .update(payload)
       .digest('hex');
+    
+    // Add debug logging
+    console.log('Received signature:', btcpaySignature);
+    console.log('Expected signature:', expectedSignature);
 
     // Verify signature
     if (btcpaySignature !== expectedSignature) {
