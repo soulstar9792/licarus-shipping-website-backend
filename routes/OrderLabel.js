@@ -268,7 +268,7 @@ async function writeOrdersToAutoConfirmCSV(orders, outputPath) {
       { id: "order_id", title: "order-id" },
       { id: "order_item_id", title: "order-item-id" },
       { id: "quantity", title: "quantity" },
-      { id: "shipdate", title: "ship-date" },
+      { id: "ship_date", title: "ship-date" },
       { id: "courier_code", title: "carrier-code" },
       { id: "courier_name", title: "carrier-name" },
       { id: "tracking_number", title: "tracking-number" },
@@ -281,7 +281,7 @@ async function writeOrdersToAutoConfirmCSV(orders, outputPath) {
     order_id: order.sender?.order_id || "",
     order_item_id: order.package?.order_item_id || "",
     quantity: order.package?.package_reference1 || "",
-    shipdate: currentDate,
+    ship_date: currentDate,
     courier_code: order?.courier || "",
     courier_name: order?.service_name || "",
     tracking_number: order?.tracking_number || "",
@@ -298,22 +298,71 @@ async function writeOrdersToAutoConfirmCSV(orders, outputPath) {
   }
 }
 
+router.post("/bulk/init", async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+    }
+    
+    try {
+        // Create bulk order document at start
+        const bulkOrder = new BulkOrder({
+            userId,
+            bulkOrderData: { orders: [], cost: 0 },
+            pdfName: null,
+            resultCSVName: null,
+            autoConfirmCSVName: null,
+            totalCount: 0,
+            processedCount: 0
+        });
+
+        const savedBulkOrder = await bulkOrder.save();
+        return res.status(200).json({ message: "Bulk order initialized successfully", orderId: savedBulkOrder._id });
+    } catch (error) {
+        console.error("Error initializing bulk order:", error);
+        return res.status(500).json({ message: "Error initializing bulk order", error: error.message });
+    }
+});
+
 // Bulk order processing
 router.post("/bulk/:userId", async (req, res) => {
   const { userId } = req.params;
-  const ordersArray = req.body;
-  const bulkOrderData = { orders: [],cost:0, orderCnt: ordersArray.length};
+  const {orderId, orderData} = req.body;
+  const bulkOrderData = { orders: [], cost: 0 };
+  let isTxt = false;
 
   try {
-    let isTxt = false;
+    const bulkOrder = await BulkOrder.findById(orderId);
+    if (!bulkOrder) {
+        return res.status(404).json({ message: "Bulk order not found" });
+    }
 
-    for (const orderData of ordersArray) {
-      const courier = orderData.courier;
-      if (orderData.sender.order_id != null) {
+    // Generate filenames and paths
+    const uploadsDir = path.join(__dirname, '../uploads');
+    ensureDirectoryExists(uploadsDir);
+
+    const currentTime = new Date();
+    const formattedTime = `${currentTime.getFullYear()}${String(currentTime.getMonth() + 1).padStart(2, '0')}${String(currentTime.getDate()).padStart(2, '0')}${String(currentTime.getHours()).padStart(2, '0')}${String(currentTime.getMinutes()).padStart(2, '0')}${String(currentTime.getSeconds()).padStart(2, '0')}`;
+    const pdfName = `bulk-orders-${formattedTime}.pdf`;
+    const resultCSVName = `bulk-orders-${formattedTime}-result.csv`;
+    const autoConfirmCSVName = `bulk-orders-${formattedTime}-auto-confirm.csv`;  
+
+    // Update bulk order with final file names
+    bulkOrder.pdfName = pdfName;
+    bulkOrder.resultCSVName = resultCSVName;
+    bulkOrder.autoConfirmCSVName = autoConfirmCSVName;
+    bulkOrder.bulkOrderData = bulkOrderData;
+    bulkOrder.totalCount = orderData.length;
+    await bulkOrder.save();
+
+
+    for (const row of orderData) {
+      const courier = row.courier;
+      if (row.sender.order_id != null) {
         isTxt = true;
       }
 
-      const service_type = ordersArray[0].service_name.trim();
+      const service_type = row.service_name.trim();
       const services = await User.findById(userId);
       
       const service_cost = getServiceCost(services, courier, service_type);
@@ -332,38 +381,33 @@ router.post("/bulk/:userId", async (req, res) => {
       const shipment = {
         api_key: process.env.API_KEY,
         service_name: service_type,
-        version: orderData.package.provider,
+        version: row.package.provider,
         manifested: false,
-        sender: orderData.sender,
-        receiver: orderData.receiver,
-        package: orderData.package,
+        sender: row.sender,
+        receiver: row.receiver,
+        package: row.package,
       };
 
       const response = await axios.post(`https://api.labelexpress.io/v1/${courier}/image/create`, shipment);
       const order = {
-        sender: orderData.sender,
-        receiver: orderData.receiver,
-        package: orderData.package,
+        sender: row.sender,
+        receiver: row.receiver,
+        package: row.package,
         label: response.data.data,
         tracking_number: response.data.data.tracking_number,
         courier,
-        service_name: orderData.service_name.trim(),
-        ship_data: orderData.package.provider,
+        service_name: service_type,
+        ship_data: row.package.provider,
       };
       bulkOrderData.orders.push(order);
       bulkOrderData.cost += service_cost;
+
+      // Update progress after each order
+      bulkOrder.processedCount += 1;
+      bulkOrder.bulkOrderData = bulkOrderData;
+      await bulkOrder.save();
     }
 
-    // Generate filenames and paths
-    const uploadsDir = path.join(__dirname, '../uploads');
-    ensureDirectoryExists(uploadsDir);
-
-    const currentTime = new Date();
-    const formattedTime = `${currentTime.getFullYear()}${String(currentTime.getMonth() + 1).padStart(2, '0')}${String(currentTime.getDate()).padStart(2, '0')}${String(currentTime.getHours()).padStart(2, '0')}${String(currentTime.getMinutes()).padStart(2, '0')}${String(currentTime.getSeconds()).padStart(2, '0')}`;
-    const pdfName = `bulk-orders-${formattedTime}.pdf`;
-    const resultCSVName = `bulk-orders-${formattedTime}-result.csv`;
-    const autoConfirmCSVName = isTxt ? `bulk-orders-${formattedTime}-auto-confirm.csv` : null;  
-    
     // generating label pdf.
     const pdfDoc = new PDFDocument({ autoFirstPage: false });
     const pdfPath = path.join(uploadsDir, pdfName);
@@ -392,34 +436,52 @@ router.post("/bulk/:userId", async (req, res) => {
     // generating auto-confirm file if the source is from Amazon.
     if (isTxt) {
       autoConfirmCSVPath = path.join(uploadsDir, autoConfirmCSVName);
-      const isCsvWritten = await writeOrdersToAutoConfirmCSV(bulkOrderData.orders, autoConfirmCSVPath);
-      if (!isCsvWritten) {
+      const isCsv1Written = await writeOrdersToAutoConfirmCSV(bulkOrderData.orders, autoConfirmCSVPath);
+      if (!isCsv1Written) {
         throw new Error("Error generating CSV file");
       }
     }
-
-    const bulkOrder = new BulkOrder({
-      userId,
-      courier:bulkOrderData.orders[0].courier,
-      bulkOrderData,
-      pdfName,
-      resultCSVName,
-      autoConfirmCSVName,
-    });
-    const savedBulkOrder = await bulkOrder.save();
+    else {
+      bulkOrder.autoConfirmCSVName = null;
+      await bulkOrder.save();
+    }
 
     res.status(200).json({
-      message: "Bulk orders created successfully",
-      fileData: {
-        pdfName,
-        resultCSVName,
-        autoConfirmCSVName,
-      },
-      data: savedBulkOrder,
+        processedCount: bulkOrder.processedCount,
+        totalCount: bulkOrder.totalCount,
+        fileData: {
+          pdfName,
+          resultCSVName,
+          autoConfirmCSVName: bulkOrder.autoConfirmCSVName
+        }
     });
+
   } catch (error) {
     console.error("Error creating bulk orders:", error);
     return res.status(error.status || 500).json({ message: "Error creating bulk orders", data: error.response && error.response.data }); 
+  }
+});
+
+// Get progress of a specific bulk order
+router.get("/bulk/progress/:orderId", async (req, res) => {
+  const { orderId } = req.params;
+  if (!orderId) {
+    return res.status(400).json({ message: "Order ID is required" });
+  }
+
+  try {
+    const bulkOrder = await BulkOrder.findById(orderId);
+    if (!bulkOrder) {
+      return res.status(404).json({ message: "Bulk order not found" });
+    }
+    
+    return res.status(200).json({
+      processedCount: bulkOrder.processedCount,
+      totalCount: bulkOrder.totalCount
+    });
+  } catch (error) {
+    console.error("Error retrieving bulk order progress:", error);
+    return res.status(500).json({ message: "Error retrieving progress", error: error.message });
   }
 });
 

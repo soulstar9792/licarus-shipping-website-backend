@@ -108,3 +108,4 @@ config/keys.js
 
 # Uploads Folder
 uploads/
+.vercel

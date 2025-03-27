@@ -45,7 +45,7 @@ router.get("/top-up-history/:userId", auth, async (req, res) => {
     }
 
     const data = await BTCPayServerAPI.retrieveInvoices();
-    console.log("Retrived Invoices:", data);
+    console.log("Retrived Invoice Count:", data.length);
     //filter out invoices that are belong to the user
     const filteredData = data.filter(invoice => invoice.metadata.userId === userId);
     // Send back the fetched data in response
@@ -70,7 +70,6 @@ router.get("/recent-deposits/:userId", auth, async (req, res) => {
     }
 
     const data = await BTCPayServerAPI.retrieveInvoices();
-    console.log("Retrived Invoices:", data);
     
     //filter out invoices that are belong to the user
     const recentDeposits = data.filter(invoice => invoice.metadata.userId === userId);

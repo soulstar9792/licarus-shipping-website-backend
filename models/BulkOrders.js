@@ -5,25 +5,30 @@ const bulkOrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  courier: {
-    type: String,
-    required: true,
-  },
   bulkOrderData: {
     type: Object,
     required: true,
   },
   pdfName: {
     type: String,
-    required: true,
+    required: false,
   },
   autoConfirmCSVName: {
     type: String,
-    required: true,
+    required: false,
   },
   resultCSVName: {
     type: String,
+    required: false,
+  },
+  processedCount: {
+    type: Number,
     required: true,
+    default: 0
+  },
+  totalCount: {
+    type: Number,
+    required: true
   },
   createdAt: {
     type: Date,
