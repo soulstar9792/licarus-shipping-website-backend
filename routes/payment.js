@@ -5,6 +5,7 @@ const User = require("../models/Users");
 const Payment = require("../models/Payment");
 const bodyParser = require("body-parser");
 const BTCPayServerAPI = require("../utils/btcPayActions");
+const crypto = require('crypto');
 
 router.use(bodyParser.json()); // Ensure we parse JSON from BTCPayServer
 
@@ -89,6 +90,29 @@ router.get("/recent-deposits/:userId", auth, async (req, res) => {
  */
 router.post("/btcpay-webhook", async (req, res) => {
   try {
+    // Get the signature from headers
+    const btcpaySignature = req.headers['btcpay-sig'];
+    
+    if (!btcpaySignature) {
+      console.error('❌ No BTCPay signature found in headers');
+      return res.status(401).json({ message: 'No signature provided' });
+    }
+
+    // Calculate expected signature
+    const webhookSecret = process.env.BTCPAY_WEBHOOK_SECRET;
+    const payload = JSON.stringify(req.body);
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(payload)
+      .digest('hex');
+
+    // Verify signature
+    if (btcpaySignature !== expectedSignature) {
+      console.error('❌ Invalid BTCPay signature');
+      return res.status(401).json({ message: 'Invalid signature' });
+    }
+
+    // If signature is valid, proceed with the rest of the webhook handling
     const { type, metadata, invoiceId } = req.body;
 
     console.log("BTCPay Webhook Event:", type, req.body);
