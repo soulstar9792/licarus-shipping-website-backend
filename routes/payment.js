@@ -90,37 +90,31 @@ router.get("/recent-deposits/:userId", auth, async (req, res) => {
  */
 router.post("/btcpay-webhook", async (req, res) => {
   try {
-    // Add debug logging
-    console.log('Received headers:', req.headers);
-    console.log('Received body:', req.body);
-    
-    const btcpaySignature = req.headers['btcpay-sig'];
-    
+    console.log("Received headers:", req.headers);
+    console.log("Received body:", req.body);
+
+    const btcpaySignature = req.headers["btcpay-sig"];
     if (!btcpaySignature) {
-      console.error('❌ No BTCPay signature found in headers');
-      console.log('Available headers:', Object.keys(req.headers));
-      return res.status(401).json({ message: 'No signature provided' });
+      console.error("❌ No BTCPay signature found");
+      return res.status(401).json({ message: "No signature provided" });
     }
 
-    // Remove the 'sha256=' prefix from the received signature
-    const receivedSignature = btcpaySignature.replace('sha256=', '');
-
-    // Calculate expected signature
+    const receivedSignature = btcpaySignature.replace("sha256=", "");
     const webhookSecret = process.env.BTCPAY_WEBHOOK_SECRET;
-    const payload = JSON.stringify(req.body);
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(payload)
-      .digest('hex');
-    
-    // Add debug logging
-    console.log('Received signature (cleaned):', receivedSignature);
-    console.log('Expected signature:', expectedSignature);
+    const payload = req.rawBody; // Use raw body
 
-    // Verify signature
+    // Compute expected signature
+    const expectedSignature = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(payload, "utf8") // Ensure correct encoding
+      .digest("hex");
+
+    console.log("Received signature:", receivedSignature);
+    console.log("Expected signature:", expectedSignature);
+
     if (receivedSignature !== expectedSignature) {
-      console.error('❌ Invalid BTCPay signature');
-      return res.status(401).json({ message: 'Invalid signature' });
+      console.error("❌ Invalid BTCPay signature");
+      return res.status(401).json({ message: "Invalid signature" });
     }
 
     // If signature is valid, proceed with the rest of the webhook handling

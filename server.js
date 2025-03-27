@@ -26,6 +26,15 @@ const OrderRouter = require("./routes/OrderLabel");
 const paymentRouter = require("./routes/payment");
 const hookRouter = require('./routes/hook');
 
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString('utf8'); // Store raw body for later verification
+    },
+  })
+);
+
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
