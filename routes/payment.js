@@ -102,6 +102,9 @@ router.post("/btcpay-webhook", async (req, res) => {
       return res.status(401).json({ message: 'No signature provided' });
     }
 
+    // Remove the 'sha256=' prefix from the received signature
+    const receivedSignature = btcpaySignature.replace('sha256=', '');
+
     // Calculate expected signature
     const webhookSecret = process.env.BTCPAY_WEBHOOK_SECRET;
     const payload = JSON.stringify(req.body);
@@ -111,11 +114,11 @@ router.post("/btcpay-webhook", async (req, res) => {
       .digest('hex');
     
     // Add debug logging
-    console.log('Received signature:', btcpaySignature);
+    console.log('Received signature (cleaned):', receivedSignature);
     console.log('Expected signature:', expectedSignature);
 
     // Verify signature
-    if (btcpaySignature !== expectedSignature) {
+    if (receivedSignature !== expectedSignature) {
       console.error('❌ Invalid BTCPay signature');
       return res.status(401).json({ message: 'Invalid signature' });
     }
